@@ -1,0 +1,51 @@
+{
+  "name": "decoratedtracing",
+  "version": "0.0.0",
+  "description": "A TypeScript, decorator-based abstraction over OpenTracing API",
+  "main": "dist/index.js",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "tsc --build tsconfig.build.json",
+    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "eslint 'src/**/*.ts' --fix",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/easternmages/decoratedtracing.git"
+  },
+  "keywords": [
+    "tracing",
+    "opentracing",
+    "typescript",
+    "decorators"
+  ],
+  "author": "Artur Nerkowski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/easternmages/decoratedtracing/issues"
+  },
+  "homepage": "https://github.com/easternmages/decoratedtracing#readme",
+  "devDependencies": {
+    "@types/jest": "25.1.2",
+    "@types/node": "13.7.0",
+    "@typescript-eslint/eslint-plugin": "2.19.0",
+    "@typescript-eslint/parser": "2.19.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.10.0",
+    "eslint-plugin-import": "2.20.1",
+    "eslint-plugin-jest": "23.7.0",
+    "eslint-plugin-prettier": "3.1.2",
+    "jest": "25.1.0",
+    "prettier": "1.19.1",
+    "rimraf": "3.0.1",
+    "ts-jest": "25.2.0",
+    "ts-loader": "6.2.1",
+    "ts-node": "8.6.2",
+    "tsconfig-paths": "3.9.0",
+    "typescript": "3.7.5"
+  }
+}
