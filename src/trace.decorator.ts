@@ -1,5 +1,6 @@
 /// <reference types="zone.js" />
 import { globalTracer } from 'opentracing';
+import { getNextTracingSpan } from './get-next-tracing-span';
 import { TRACING_SPAN } from './symbols';
 
 export const Trace = (): MethodDecorator => <T>(
@@ -26,12 +27,15 @@ export const Trace = (): MethodDecorator => <T>(
           ? `${target.name}::`
           : `${target.constructor.name}.`;
       const label = `${prefix}${propertyKey.toString()}`;
-      const span = tracer.startSpan(label);
+      const childOf = getNextTracingSpan();
+      const span = tracer.startSpan(label, { childOf });
       const zone = Zone.current.fork({ name: label });
       zone[TRACING_SPAN] = span;
-      const result = zone.run(value, this, args);
-      span.finish();
-      return result;
+      try {
+        return zone.run(value, this, args);
+      } finally {
+        span.finish();
+      }
     },
   } as any;
 

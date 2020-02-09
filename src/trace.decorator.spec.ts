@@ -1,5 +1,5 @@
 import 'zone.js';
-import { MockTracer, Span, initGlobalTracer } from 'opentracing';
+import { MockTracer, Span, initGlobalTracer, SpanContext } from 'opentracing';
 import { MockSpan } from 'opentracing/lib/mock_tracer';
 import { Trace } from './trace.decorator';
 import { TRACING_SPAN } from './symbols';
@@ -30,6 +30,13 @@ describe('Trace', () => {
       @Trace()
       m() {
         return Zone.current;
+      }
+
+      @Trace()
+      e() {
+        const error = new Error();
+        error[TRACING_SPAN] = Zone.current[TRACING_SPAN];
+        throw error;
       }
     }
     let a: A;
@@ -97,6 +104,39 @@ describe('Trace', () => {
       const methodZone = a.m();
 
       expect(methodZone.name).toEqual('A.m');
+    });
+
+    it('should close the span even if the traced method throws', () => {
+      let span: MockSpan;
+
+      try {
+        a.e();
+      } catch (error) {
+        span = error[TRACING_SPAN];
+      }
+
+      expect(span._finishMs).toBeTruthy();
+    });
+
+    it('should register the reference to parent span', () => {
+      const zone = Zone.current.fork({
+        name: 'parent',
+      });
+      const parentSpan = tracer.startSpan('parent');
+      zone[TRACING_SPAN] = parentSpan;
+      let childOf: Span | SpanContext;
+      jest
+        .spyOn(tracer, 'startSpan')
+        .mockImplementationOnce((_name, options) => {
+          childOf = options.childOf;
+          return { finish() {} } as any;
+        });
+
+      zone.run(() => {
+        a.m();
+
+        expect(childOf).toBe(parentSpan);
+      });
     });
   });
 });
